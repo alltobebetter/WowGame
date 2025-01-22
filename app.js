@@ -80,11 +80,11 @@ async function loadChapters() {
                 <div style="min-width: 200px;">
                     <div style="font-size: 1.2rem; margin-bottom: 1rem; color: #f0f0f0;">核心团队</div>
                     <div>总策划：AIBoB Team</div>
-                    <div>剧本：AIBoB Team</div>
-                    <div>程序：AIBoB Team</div>
-                    <div>美术：AIBoB Team</div>
-                    <div>音乐：AIBoB Team</div>
-                    <div>音效：AIBoB Team</div>
+                    <div>剧本：BeiSea / 贝海</div>
+                    <div>程序：Sulin / 苏淋</div>
+                    <div>美术：Flux AI</div>
+                    <div>音乐：Others</div>
+                    <div>音效：Others</div>
                 </div>
 
                 <div style="min-width: 300px;">
@@ -100,7 +100,7 @@ async function loadChapters() {
                 <div style="min-width: 300px;">
                     <div style="font-size: 1.2rem; margin-bottom: 1rem; color: #f0f0f0;">关于游戏</div>
                     <div>本游戏是一个独立开发的视觉小说作品</div>
-                    <div>融合了悬疑、恐怖与剧情元素</div>
+                    <div>融合了悬疑、恐怖与剧情后者搞笑元素</div>
                     <div>希望能带给玩家独特的游戏体验</div>
                     <div>游戏中的所有内容均为虚构</div>
                     <div>如有雷同纯属巧合</div>
@@ -109,8 +109,8 @@ async function loadChapters() {
 
                 <div style="min-width: 250px;">
                     <div style="font-size: 1.2rem; margin-bottom: 1rem; color: #f0f0f0;">版本信息</div>
-                    <div>当前版本：1.0.0</div>
-                    <div>发布日期：2024年3月</div>
+                    <div>当前版本：1.0.1</div>
+                    <div>发布日期：2025年1月</div>
                     <div>更新日志请关注官方网站</div>
                     <div>后续将持续更新优化</div>
                     <div>欢迎反馈任何问题或建议</div>
@@ -119,11 +119,8 @@ async function loadChapters() {
 
                 <div style="min-width: 250px;">
                     <div style="font-size: 1.2rem; margin-bottom: 1rem; color: #f0f0f0;">联系方式</div>
-                    <div>官方网站：www.aibob-game.com</div>
-                    <div>反馈邮箱：feedback@aibob.com</div>
-                    <div>商务合作：business@aibob.com</div>
-                    <div>加入我们：join@aibob.com</div>
-                    <div>媒体咨询：press@aibob.com</div>
+                    <div>官方网站：aibob.click</div>
+                    <div>反馈邮箱：me@supage.eu.org</div>
                 </div>
 
                 <div style="text-align: center; margin-left: 2rem;">

@@ -297,114 +297,112 @@ window.initGame = function({ container, content, bgm, storyPath, imgBase }) {
             });
         });
 
-        // 打字机效果
-        function typeWriter(element, text, color, callback) {
-            isTyping = true;
-            element.style.color = color || '#fff';
-            let i = 0;
-            element.textContent = '';
-            
-            function type() {
-                if (i < text.length) {
-                    element.textContent += text.charAt(i);
-                    i++;
-                    setTimeout(type, 30);
-                } else {
-                    isTyping = false;
-                    if (callback) callback();
-                }
-            }
-            
-            type();
-        }
-
         // 显示场景
         function showScene(sceneId) {
-            currentScene = sceneId;
-            // 保存进度
-            localStorage.setItem(saveKey, currentScene);
-            
-            const scene = scenes[sceneId][0];
-            if (!scene) return;
+            if (!scenes[sceneId]) {
+                console.error(`Scene ${sceneId} not found`);
+                return;
+            }
 
+            currentScene = sceneId;
+            const scene = scenes[sceneId][0];
             const speaker = container.querySelector('#speaker');
             const text = container.querySelector('#text');
             const choices = container.querySelector('#choices');
             const sceneImage = container.querySelector('#scene-image');
 
-            // 设置场景图片
+            // 更新场景
+            speaker.textContent = scene.speaker;
+            text.textContent = '';
+            choices.innerHTML = '';
+
+            // 设置文字颜色
+            text.style.color = scene.color || '#fff';
+
+            // 更新背景图片
             if (scene.image) {
-                sceneImage.style.backgroundImage = `url(img/${imgBase}/${scene.image})`;
-            } else {
-                sceneImage.style.backgroundImage = 'none';
+                const imagePath = `${imgBase}/${scene.image}`;
+                sceneImage.style.opacity = '0';
+                setTimeout(() => {
+                    sceneImage.style.backgroundImage = `url(${imagePath})`;
+                    sceneImage.style.opacity = '1';
+                }, 500);
             }
 
-            // 显示说话者
-            speaker.textContent = scene.speaker;
-
-            // 显示文本（打字机效果）
-            typeWriter(text, scene.text, scene.color, () => {
-                // 显示选项
-                choices.innerHTML = '';
-                if (scene.choices.length > 0) {
-                    scene.choices.forEach(choice => {
-                        const button = document.createElement('button');
-                        button.textContent = choice.text;
-                        button.style.cssText = `
-                            background: none;
-                            color: white;
-                            border: 1px solid rgba(255, 255, 255, 0.3);
-                            padding: 1rem 2rem;
-                            font-size: 0.96rem;
-                            cursor: pointer;
-                            transition: all 0.3s ease;
-                            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-                            backdrop-filter: blur(5px);
-                            min-width: 150px;
-                        `;
-                        button.addEventListener('mouseover', () => {
-                            button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                        });
-                        button.addEventListener('mouseout', () => {
-                            button.style.backgroundColor = 'transparent';
-                        });
-                        button.addEventListener('click', () => {
-                            if (!isTyping) {
+            // 打字机效果显示文字
+            let index = 0;
+            isTyping = true;
+            function typeWriter() {
+                if (index < scene.text.length) {
+                    text.textContent += scene.text.charAt(index);
+                    index++;
+                    setTimeout(typeWriter, 30);
+                } else {
+                    isTyping = false;
+                    // 如果有选项，显示选项
+                    if (scene.choices && scene.choices.length > 0) {
+                        scene.choices.forEach(choice => {
+                            const button = document.createElement('button');
+                            button.textContent = choice.text;
+                            button.style.cssText = `
+                                background: none;
+                                color: white;
+                                border: 1px solid rgba(255, 255, 255, 0.3);
+                                padding: 0.8rem 1.5rem;
+                                font-size: 0.96rem;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+                                backdrop-filter: blur(5px);
+                            `;
+                            button.addEventListener('mouseover', () => {
+                                button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                            });
+                            button.addEventListener('mouseout', () => {
+                                button.style.backgroundColor = 'transparent';
+                            });
+                            button.addEventListener('click', (e) => {
+                                e.stopPropagation();
                                 showScene(choice.target);
-                            }
+                            });
+                            choices.appendChild(button);
                         });
-                        choices.appendChild(button);
-                    });
+                    } else {
+                        // 如果没有选项，添加点击继续的提示
+                        const continueHint = document.createElement('div');
+                        continueHint.textContent = '点击继续';
+                        continueHint.style.cssText = `
+                            color: rgba(255, 255, 255, 0.6);
+                            font-size: 0.9em;
+                            margin-top: 1rem;
+                            text-align: right;
+                            font-style: italic;
+                        `;
+                        choices.appendChild(continueHint);
+                    }
                 }
-            });
+            }
+            typeWriter();
         }
 
-        // 点击继续
-        container.addEventListener('click', (e) => {
-            // 如果音频暂停，尝试播放
-            if (audio.paused) {
-                audio.play().then(() => {
-                    bgmButton.textContent = '音乐开';
-                }).catch(() => {
-                    // 如果自动播放失败，不做处理
-                });
+        // 添加点击事件
+        container.querySelector('#game-screen').addEventListener('click', (e) => {
+            // 如果点击的是按钮或者控制元素，不处理
+            if (e.target.tagName === 'BUTTON' || 
+                e.target.closest('#audio-control') || 
+                e.target.closest('#exit-button')) {
+                return;
             }
 
-            // 如果点击的是按钮，不处理后续逻辑
-            if (e.target.tagName === 'BUTTON') return;
-            
-            const scene = scenes[currentScene][0];
-            if (!scene) return;
-
-            // 如果正在打字，立即显示全部文本
+            // 如果正在打字，立即显示所有文字
             if (isTyping) {
                 isTyping = false;
-                const text = container.querySelector('#text');
-                text.textContent = scene.text;
-                // 显示选项
+                const scene = scenes[currentScene][0];
+                container.querySelector('#text').textContent = scene.text;
+                // 显示选项或继续提示
                 const choices = container.querySelector('#choices');
                 choices.innerHTML = '';
-                if (scene.choices.length > 0) {
+                if (scene.choices && scene.choices.length > 0) {
                     scene.choices.forEach(choice => {
                         const button = document.createElement('button');
                         button.textContent = choice.text;
@@ -412,13 +410,12 @@ window.initGame = function({ container, content, bgm, storyPath, imgBase }) {
                             background: none;
                             color: white;
                             border: 1px solid rgba(255, 255, 255, 0.3);
-                            padding: 1rem 2rem;
+                            padding: 0.8rem 1.5rem;
                             font-size: 0.96rem;
                             cursor: pointer;
                             transition: all 0.3s ease;
                             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
                             backdrop-filter: blur(5px);
-                            min-width: 150px;
                         `;
                         button.addEventListener('mouseover', () => {
                             button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
@@ -426,13 +423,35 @@ window.initGame = function({ container, content, bgm, storyPath, imgBase }) {
                         button.addEventListener('mouseout', () => {
                             button.style.backgroundColor = 'transparent';
                         });
-                        button.addEventListener('click', () => {
-                            if (!isTyping) {
-                                showScene(choice.target);
-                            }
+                        button.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            showScene(choice.target);
                         });
                         choices.appendChild(button);
                     });
+                } else {
+                    const continueHint = document.createElement('div');
+                    continueHint.textContent = '点击继续';
+                    continueHint.style.cssText = `
+                        color: rgba(255, 255, 255, 0.6);
+                        font-size: 0.9em;
+                        margin-top: 1rem;
+                        text-align: right;
+                        font-style: italic;
+                    `;
+                    choices.appendChild(continueHint);
+                }
+                return;
+            }
+
+            // 如果没有选项且文字已经显示完毕，继续到下一个场景
+            const scene = scenes[currentScene][0];
+            if (!scene.choices || scene.choices.length === 0) {
+                // 查找当前场景的下一个场景
+                const sceneIds = Object.keys(scenes);
+                const currentIndex = sceneIds.indexOf(currentScene);
+                if (currentIndex < sceneIds.length - 1) {
+                    showScene(sceneIds[currentIndex + 1]);
                 }
             }
         });

@@ -1,0 +1,19 @@
+bgm = 'background-music.ogg'
+name = '医院，还有那位病人'
+img_base = 'hospital'
+audio_base= 'hospital'
+
+<document>
+
+# main
+[_][你醒来时，发现自己躺在一张冰冷的病床上。四周漆黑一片，只有走廊尽头透进来的微弱月光。][继续#next][sea.jpg][#FFFFFF][wake.mp3]
+
+# next
+[我][这里是...医院？][查看四周#look|离开病房#leave][][#E6E6FA][think.mp3]
+
+# look
+[_][你打开手机的手电筒，环顾四周。墙上布满了诡异的痕迹，病房里的其他床位都空空如也。][继续观察#continue|返回#main][][#CCCCCC][look.mp3]
+
+# continue
+[_][突然，你听到走廊传来脚步声...][躲起来#hide|装睡#sleep|离开病房#leave][corridor.jpg][#FF6B6B][footstep.mp3]
+</document> 

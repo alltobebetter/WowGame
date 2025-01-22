@@ -1,0 +1,545 @@
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "SimSun", serif;
+    background-color: #000;
+    color: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    cursor: default;
+    overflow: hidden;
+}
+
+.stories-container {
+    width: 100%;
+    max-width: 1200px;
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 3rem;
+    align-items: center;
+    padding: 4rem;
+    flex-wrap: wrap;
+}
+
+.chapter-container {
+    display: flex;
+    flex-direction: row;
+    gap: 3rem;
+    align-items: center;
+    transition: all 0.5s ease;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.chapter-container.hidden {
+    opacity: 0;
+    transform: translateX(-50px);
+    pointer-events: none;
+    position: absolute;
+    transition: all 0.5s ease;
+}
+
+.chapter-container.showing {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+    opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.story-button {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    height: 60vh;
+    width: 120px;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "SimSun", serif;
+    clip-path: polygon(30% 0, 100% 0, 70% 100%, 0 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.story-button.chapter {
+    background: rgba(50, 50, 50, 0.5);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.story-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+.story-button .title {
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    white-space: nowrap;
+    padding: 1rem;
+}
+
+.story-button .status {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 2px;
+}
+
+.chapter-content {
+    display: flex;
+    flex-direction: row;
+    gap: 3rem;
+    align-items: center;
+    margin-left: 3rem;
+    opacity: 0;
+    transform: translateX(-50px);
+    pointer-events: none;
+    transition: all 0.5s ease;
+    position: absolute;
+    left: -9999px;
+    cursor: grab;
+    user-select: none;
+    touch-action: pan-x;
+}
+
+.chapter-content.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+    position: static;
+}
+
+.chapter-content.dragging {
+    cursor: grabbing;
+}
+
+.chapter-content.closing {
+    opacity: 0;
+    transform: translateX(-50px);
+    pointer-events: none;
+    transition: all 0.5s ease;
+}
+
+#game-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 1000;
+}
+
+/* 全屏按钮样式 */
+.fullscreen-prompt {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1001;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+}
+
+.fullscreen-prompt.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 添加黑色遮罩层样式 */
+.fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0);
+    z-index: 1000;
+    transition: background-color 0.5s ease;
+    pointer-events: none;
+}
+
+.fullscreen-overlay.show {
+    background: rgba(0, 0, 0, 0.9);
+    pointer-events: auto;
+}
+
+.fullscreen-button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: "SimSun", serif;
+    margin-bottom: 1rem;
+}
+
+.fullscreen-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.fullscreen-tip {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.5;
+}
+
+/* 历史记录提示样式 */
+.history-prompt {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1002;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 2rem;
+    border-radius: 4px;
+    backdrop-filter: blur(10px);
+    display: none;
+}
+
+.history-prompt.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.history-prompt .title {
+    font-size: 1.3rem;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.history-prompt .buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.history-prompt button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: "SimSun", serif;
+}
+
+.history-prompt button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.history-prompt button.continue {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.history-prompt button.restart {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+#orientation-tip {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+#orientation-tip .icon {
+    font-size: 3rem;
+    animation: rotate 2s ease infinite;
+}
+
+#orientation-tip .text {
+    font-size: 1.2rem;
+    color: #fff;
+    text-align: center;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(90deg);
+    }
+    100% {
+        transform: rotate(90deg);
+    }
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+    #orientation-tip {
+        display: flex;
+    }
+
+    .stories-container {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .stories-container {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        align-items: flex-start;
+    }
+
+    .chapter-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .chapter-content {
+        flex-direction: column;
+        margin-left: 2rem;
+    }
+
+    .story-button {
+        width: 200px;
+        height: 100px;
+        clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+    }
+
+    .story-button .title {
+        writing-mode: horizontal-tb;
+        font-size: 1.1rem;
+        padding: 0.5rem;
+    }
+}
+
+#splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+#splash-screen.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#splash-screen .title {
+    font-size: 3rem;
+    font-weight: bold;
+    letter-spacing: 4px;
+    animation: fadeInAndGlow 1s ease-out forwards, glow 2s ease-in-out infinite alternate 1s;
+    opacity: 0;
+}
+
+#splash-screen .subtitle {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    animation: fadeIn 1s ease-out 0.5s forwards;
+}
+
+#splash-screen .subtitle .icon {
+    font-size: 1.2rem;
+    animation: bounce 1s ease infinite 1.5s;
+}
+
+@keyframes fadeInAndGlow {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+                   0 0 20px rgba(255, 255, 255, 0.3),
+                   0 0 30px rgba(255, 255, 255, 0.2);
+    }
+    to {
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.7),
+                   0 0 30px rgba(255, 255, 255, 0.5),
+                   0 0 40px rgba(255, 255, 255, 0.3);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.credits-button {
+    height: auto !important;
+    min-height: 60vh;
+    clip-path: none !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+    border-color: transparent !important;
+    width: min(800px, 90vw) !important;
+}
+
+.credits-button:hover {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border-color: transparent !important;
+}
+
+.credits-info {
+    cursor: grab;
+    user-select: none;
+    touch-action: pan-x;
+    overflow: hidden !important;
+}
+
+.credits-info.dragging {
+    cursor: grabbing;
+}
+
+/* 移除滚动条样式 */
+.credits-info::-webkit-scrollbar {
+    display: none;
+}
+
+.credits-info {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+@media (max-width: 768px) {
+    .credits-button {
+        width: 90vw !important;
+        height: auto !important;
+        min-height: 400px;
+        margin: 0 auto;
+    }
+}
+
+/* 底部版权标志样式 */
+.footer-copyright {
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    z-index: 100;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-copyright:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Github链接样式 */
+.github-link {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 100;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.github-link:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+.github-link svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+@media (max-width: 768px) {
+    .footer-copyright {
+        bottom: 0.5rem;
+        font-size: 0.7rem;
+    }
+}

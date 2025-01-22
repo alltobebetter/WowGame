@@ -1,5 +1,5 @@
 bgm = 'background-music.ogg'
-name = '医院，还有那位病人'
+name = '实验体459号'
 img_base = 'hospital'
 audio_base= 'hospital'
 

@@ -367,18 +367,6 @@ window.initGame = function({ container, content, bgm, storyPath, imgBase }) {
                             });
                             choices.appendChild(button);
                         });
-                    } else {
-                        // 如果没有选项，添加点击继续的提示
-                        const continueHint = document.createElement('div');
-                        continueHint.textContent = '点击继续';
-                        continueHint.style.cssText = `
-                            color: rgba(255, 255, 255, 0.6);
-                            font-size: 0.9em;
-                            margin-top: 1rem;
-                            text-align: right;
-                            font-style: italic;
-                        `;
-                        choices.appendChild(continueHint);
                     }
                 }
             }
@@ -394,58 +382,21 @@ window.initGame = function({ container, content, bgm, storyPath, imgBase }) {
                 return;
             }
 
+            const scene = scenes[currentScene][0];
+            
+            // 如果有选项，不处理点击事件
+            if (scene.choices && scene.choices.length > 0) {
+                return;
+            }
+
             // 如果正在打字，立即显示所有文字
             if (isTyping) {
                 isTyping = false;
-                const scene = scenes[currentScene][0];
                 container.querySelector('#text').textContent = scene.text;
-                // 显示选项或继续提示
-                const choices = container.querySelector('#choices');
-                choices.innerHTML = '';
-                if (scene.choices && scene.choices.length > 0) {
-                    scene.choices.forEach(choice => {
-                        const button = document.createElement('button');
-                        button.textContent = choice.text;
-                        button.style.cssText = `
-                            background: none;
-                            color: white;
-                            border: 1px solid rgba(255, 255, 255, 0.3);
-                            padding: 0.8rem 1.5rem;
-                            font-size: 0.96rem;
-                            cursor: pointer;
-                            transition: all 0.3s ease;
-                            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-                            backdrop-filter: blur(5px);
-                        `;
-                        button.addEventListener('mouseover', () => {
-                            button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                        });
-                        button.addEventListener('mouseout', () => {
-                            button.style.backgroundColor = 'transparent';
-                        });
-                        button.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            showScene(choice.target);
-                        });
-                        choices.appendChild(button);
-                    });
-                } else {
-                    const continueHint = document.createElement('div');
-                    continueHint.textContent = '点击继续';
-                    continueHint.style.cssText = `
-                        color: rgba(255, 255, 255, 0.6);
-                        font-size: 0.9em;
-                        margin-top: 1rem;
-                        text-align: right;
-                        font-style: italic;
-                    `;
-                    choices.appendChild(continueHint);
-                }
                 return;
             }
 
             // 如果没有选项且文字已经显示完毕，继续到下一个场景
-            const scene = scenes[currentScene][0];
             if (!scene.choices || scene.choices.length === 0) {
                 // 查找当前场景的下一个场景
                 const sceneIds = Object.keys(scenes);

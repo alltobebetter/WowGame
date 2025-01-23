@@ -541,25 +541,3 @@ function initDragScroll() {
         activeContainer = null;
     }
 }
-
-// 动态调整字体和元素大小
-function adjustLayout() {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    const scaleFactor = Math.min(width / 1920, height / 1080); // 基于1920x1080的比例
-
-    // 调整字体大小
-    document.documentElement.style.fontSize = `${16 * scaleFactor}px`;
-
-    // 调整平行四边形等元素大小
-    const elements = document.querySelectorAll('.parallelogram, .dialog-box, .button');
-    elements.forEach(el => {
-        el.style.transform = `scale(${scaleFactor})`;
-    });
-}
-
-// 初始化布局调整
-adjustLayout();
-
-// 监听窗口大小变化
-window.addEventListener('resize', adjustLayout);
